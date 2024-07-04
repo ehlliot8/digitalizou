@@ -2,20 +2,19 @@ import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabaseSync('digitalizou.db');
 
-type Texto = {
+export type TextoCapturado = {
     conteudo: string,
-  
 }
 
 
-export const insetTexto = async (textoCap: Texto) => {
+export const insetTexto = async (textoCap: TextoCapturado) => {
     try {
         if (!textoCap || textoCap == null) {
             throw new Error('Nenhum texto para inserir');
         }
 
         const sql = `
-            INSERT INTO textoCapturado (texto, )
+            INSERT INTO textoCapturado (conteudo )
             VALUES (?)
         `;
         const values = [ textoCap.conteudo];
@@ -25,11 +24,11 @@ export const insetTexto = async (textoCap: Texto) => {
         console.log(error, ' erro ao inserir texto' )
     }
 }
-export const getTexto = async () => {
+export const getTextosCapturados = async () => {
     try {
         let result;
         await db.withExclusiveTransactionAsync ( async ()=> {
-            result = await db.getAllAsync(`SELECT * FROM texto`)
+            result = await db.getAllAsync(`SELECT * FROM textoCapturado`)
         });
 
         return result ? result : [];
@@ -48,3 +47,26 @@ export const setupDatabase = async () => {
       `);
 
 }
+
+export const setupDatabaseTextoCapturado = async () => {
+    let result = [];
+    try {
+      result = await db.getAllAsync('SELECT * FROM textoCapturado');
+  
+      if (result.length !== 0) {
+        return
+      }
+  
+      await db.execAsync(`
+         INSERT INTO textoCapturado (conteudo) VALUES
+            ('texto texto  textotexto texto 
+            textotextotextotextotextotextotexto
+            textotextotextotextotextotextotexto,texto
+            texto
+            textotextotextotextotextotextotexto')    
+        `);
+    } catch (error) {
+      console.error('Erro ao buscar text:', error);
+    }
+  };
+  

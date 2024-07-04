@@ -1,30 +1,41 @@
-import { Camera, ExternalLink } from '@tamagui/lucide-icons'
-import { Anchor, Button, Card, H2, Paragraph, XStack, YStack } from 'tamagui';
-import { btnCamCapture } from 'app/components/btnCamCapture';
+
+import { Button, Paragraph, YStack } from 'tamagui';
+import { useEffect, useState } from 'react';
+import { getTextosCapturados, setupDatabase, setupDatabaseTextoCapturado, TextoCapturado } from 'db/database';
+import { useFocusEffect } from 'expo-router';
+import React from 'react';
+import HeaderIndex from 'app/components/header-Index.tsx/HeaderIndex';
+import CardsPagina from 'app/components/cards-paginas/CardsPaginas';
+import BtnCamCapture from 'app/components/btn-cam-capture/BtnCamCapture';
+
+
 export default function TabOneScreen() {
 
+  const [texoCapturado, setTextoCapturado] = useState<TextoCapturado[]>([])
   
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        await setupDatabase();
+        await setupDatabaseTextoCapturado();
+      })()
+    }, [])
+  );
+
+
+  useEffect(() => {
+    const handleTexto = async () => {
+      const result = await getTextosCapturados();
+      console.log(result);
+      setTextoCapturado(result);
+    }
+    handleTexto();
+  }, [])
   return (
     <YStack f={1} ai="center" gap="$8" px="$10" pt="$5">
-      <H2>Digitalizou</H2>
-
-      <YStack height={'60%'}>
-        {/* map para renderizar cada foto no card a baixo */}
-        {/* {(
-
-        )} */}
-        <Card height={'20%'}>
-
-
-        </Card>
-      </YStack>
-
-      <Button
-        size={'$10'}
-        icon={Camera}
-
-      />
-
+      <HeaderIndex />
+      <CardsPagina textosCapturados={texoCapturado} />
+      <BtnCamCapture />
 
     </YStack>
   )
